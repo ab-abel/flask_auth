@@ -1,3 +1,5 @@
-# This is an auth boostrap for project that rewuite authetication
+# FLASK Authentication Boostrap
 
-## 
+## Project Overview:
+This is a kick for auth boostap for flask project. 
+
