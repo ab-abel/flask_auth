@@ -18,10 +18,6 @@ app = Flask(os.getenv('APP_NAME'),
 
 # run the code
 if __name__ == '__main__':
-    app.url_map.strict_slashes = False
-
-    # run DB schema
-    # create_db()
-
-    # run app on debug mode for test case
-    app.run(host='0.0.0.0', debug=True)
+    app.run(debug=True)
+    
+ 
