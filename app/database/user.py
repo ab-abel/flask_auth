@@ -14,7 +14,7 @@ parser.add_argument('password', type=str)
 class UserApi(Resource):
     
     # show a specific users
-    def show(self, id=None):
+    def get(self, id=None):
         
         # get a paticular users from DB
         result = session.query(User).filter(User.id == id).first()
