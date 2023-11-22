@@ -1,7 +1,7 @@
 from app.database.db import session
-from model import User
+from app.database.model import User
 from flask_restful import Resource, reqparse
-from app.auth import password
+from app.auth.password import Password
 
 # instantiate the parse method
 parser = reqparse.RequestParser()
@@ -33,7 +33,7 @@ class UserApi(Resource):
         password = args['password']
         
         # hash the Password
-        
+        pswhash = Password.hash(password=password)
         
         # chwck if user already exit in the db
         user = session.query(User).filter(User.email == email).first()
@@ -43,7 +43,7 @@ class UserApi(Resource):
             return {'msg': 'Username already exist'}
         
         # add the necw user a to he DB
-        new_user = User(name, email, password)
+        new_user = User(name, email, pswhash)
         session.add(new_user)
         session.commit()
         session.close()
