@@ -1,6 +1,7 @@
 from app.database.db import session
 from model import User
 from flask_restful import Resource, reqparse
+from app.auth import password
 
 # instantiate the parse method
 parser = reqparse.RequestParser()
