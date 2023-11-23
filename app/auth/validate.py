@@ -1,6 +1,6 @@
 import re
 
-class Validation():
+class Validation:
     
     def __init__(self):
         self.is_valid = False
@@ -12,7 +12,7 @@ class Validation():
             if(i.isdigit()):
                 a.append(i)
         if(len(a)>=1):
-           self.s_valid = True
+           self.is_valid = True
         else:
            self.is_valid = False
         return self.is_valid
@@ -36,7 +36,6 @@ class Validation():
             and not password.isupper() 
             and self.check_for_int(password) 
             and not self.check_white_space(password)):
-
            self.is_valid = True
         else:
            self.is_valid = False
@@ -60,11 +59,11 @@ class Validation():
             self.is_valid = True
         return self.is_valid
 
-    def check_if_empty(self, pass_string):
+    def is_empty(self, pass_string):
         if not pass_string:
-            self.is_valid = False
-        else: 
             self.is_valid = True
+        else: 
+            self.is_valid = False
         return self.is_valid
 
     def validate_email(self, email):
