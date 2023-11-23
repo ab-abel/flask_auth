@@ -3,26 +3,28 @@ from app.database.db import session
 from app.database.model import User
 from app.auth.password import Password
 
-class Registration():
+
+class Registration:
     
-    def __init__(self) -> None:     
-        self.fullname = request.form['fullname']
-        self.email = request.form['email']
-        self.pwd =request.form['password']
+    def __init__(self, fullname, email, password) -> None:     
+        self.fullname = fullname
+        self.email = email
+        self.pwd = password
     
     
     def register_user(self):
-        # validate inut
-        
-        # check if exist
-        
-        # pass to db
-        
-        pass
-            
-    def user_exist(email):
+
+        # add the user;
+        pswhash = Password.hash(password=self.pwd)
+        user = User(fullname = self.fullname, email=self.email, password=pswhash)
+        session.add(user)
+        session.commit()
+        session.close()
+        return {
+            "msg":"User created successfully!"}
+       
+    def user_exist(self, email):
         user = session.query(User).filter(User.email == email).first()
         session.close()
         if not user:
             return {'msg':"User already exist"}
-        
