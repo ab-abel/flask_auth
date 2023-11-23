@@ -22,9 +22,3 @@ class Registration:
         session.close()
         return {
             "msg":"User created successfully!"}
-       
-    def user_exist(self, email):
-        user = session.query(User).filter(User.email == email).first()
-        session.close()
-        if not user:
-            return {'msg':"User already exist"}
