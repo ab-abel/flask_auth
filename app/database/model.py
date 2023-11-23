@@ -20,6 +20,6 @@ class User(Base):
     # define column for users
     id = Column(Integer, primary_key=True,
                 autoincrement=True, unique=True, nullable=False)
-    firstname = Column(String(256), nullable=False)
+    fullname = Column(String(256), nullable=False)
     email = Column(String(256), nullable=False)
     password = Column(String(256), nullable=False)
