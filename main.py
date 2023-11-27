@@ -56,6 +56,14 @@ def register():
 
 @app.route('/login', methods= ['GET', 'POST'])
 def login():
+    email = request.form['email']
+    password = request.form['password']
+    validate = Validation()
+    if not validate.is_empty(email) and \
+        not validate.is_empty(password) and \
+                validate.validate_email(email):
+        user = session.query(User).filter(User.email == email).first()
+        
     return render_template('login.html')
 
 @app.route('/')
