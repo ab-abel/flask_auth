@@ -71,12 +71,12 @@ def register():
             else:
                 if current_user.is_authenticated or not current_user.is_anonymous:
                     return redirect(url_for('profile'))
-                return render_template('auth.register.html')
+                return render_template('auth/register.html')
                         
     else:
         if current_user.is_authenticated or not current_user.is_anonymous:
             return redirect(url_for('profile'))
-        return render_template('auth.register.html')
+        return render_template('auth/register.html')
 
 
 
@@ -106,20 +106,29 @@ def login():
                 login_user(user, remember=True)
                 return redirect(url_for("profile"))
 
-    return render_template("login.html", form=form)
+    return render_template("auth/login.html", form=form)
 
 @app.route('/profile')
 @login_required
 def profile():
-    return render_template('profile.html', username = current_user.fullname)
+    return render_template('auth/profile.html', username = current_user.fullname)
 
-@app.route('/logout')
+@app.route('/logout', methods=['GET'])
 @login_required
 def logout():
     # logout_user()
+    """Logout the current user."""
+    user = current_user
+    user.authenticated = False
+    db.session.add(user)
+    db.session.commit()
+    logout_user()
     return redirect(url_for('home'))
 
 # run the code
 if __name__ == '__main__':
-    app.run(debug=True)
-    create_db()
+       db.init_app(app)
+       with app.app_context():
+              db.create_all()
+            #   db.drop_all()
+       app.run(debug = True)
