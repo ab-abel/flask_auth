@@ -1,13 +1,15 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String
+from flask_login import UserMixin
 
 
 # define Base class for table class inheritance
 Base = declarative_base()
 
 
+
 # create a table for class state
-class User(Base):
+class User(Base, UserMixin):
     '''
         class defintion for SQL table states
         pARAMETER
@@ -23,3 +25,19 @@ class User(Base):
     fullname = Column(String(256), nullable=False)
     email = Column(String(256), nullable=False)
     password = Column(String(256), nullable=False)
+    
+    def is_active(self):
+        """True, as all users are active."""
+        return True
+
+    def get_id(self):
+        """Return the email address to satisfy Flask-Login's requirements."""
+        return self.email
+
+    def is_authenticated(self):
+        """Return True if the user is authenticated."""
+        return self.authenticated
+
+    def is_anonymous(self):
+        """False, as anonymous users aren't supported."""
+        return False
