@@ -108,15 +108,10 @@ def login():
 
     return render_template("login.html", form=form)
 
-
-@app.route('/')
-def home():
-    return render_template('home.html')
-
 @app.route('/profile')
 @login_required
 def profile():
-    return render_template('profile.html', username = current_user)
+    return render_template('profile.html', username = current_user.fullname)
 
 @app.route('/logout')
 @login_required
