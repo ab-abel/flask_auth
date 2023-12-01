@@ -28,30 +28,23 @@ app = Flask(os.getenv('APP_NAME'),
             template_folder='templates',
             static_folder='static')
 
-app.config['SECRET_KEY'] = 'super-secret'
+# config secret and DB engine
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DB_ENGINE')
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+
+# intitize boostrap for form loader
+bootstrap = Bootstrap5(app)
 
 login_manager = LoginManager()
 login_manager.login_view = 'login'
 login_manager.init_app(app)
 
 @login_manager.user_loader
-def load_user(user_id):
+def user_loader(user_id):
     return User.query.get(int(user_id))
-    # return db_session.query(User).filter(User.id == user_id).first()
-
-# load routes
-# from core.routes import bp as main_bp
-# app.register_blueprint(main_bp)
-
-# use the rest API
-
-api = Api(app)
 
 
-api.add_resource(UserApi,
-                 '/api/user/',
-                 '/api/user/<int:id>'
-                 )
+
 
 @app.route('/register', methods= ['GET', 'POST'])
 def register():
