@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, url_for, redirect
+from app.auth.validate import Validation
 
 # import for dot env load
 import os
@@ -60,12 +61,16 @@ def register():
             not validate.is_empty(password) and \
                 not validate.is_empty(fullname) and \
                     validate.validate_email(email):
-            user = db_session.query(User).filter(User.email == email).first()
+            user = User.query.filter_by(email= email).first()
             if not user: 
-                resgister_class = Registration(fullname, email, password)
-                resgister_class.register_user()
-                return render_template('home.html')
-            else: 
+                user = User(fullname=fullname, email=email, password=password)
+                db.session.add(user)
+                db.session.commit()
+                flash("Users added succesfully")
+                return redirect(url_for('login'))
+            else:
+                if current_user.is_authenticated or not current_user.is_anonymous:
+                    return redirect(url_for('profile'))
                 return render_template('register.html')
                         
     else:
