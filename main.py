@@ -71,35 +71,43 @@ def register():
             else:
                 if current_user.is_authenticated or not current_user.is_anonymous:
                     return redirect(url_for('profile'))
-                return render_template('register.html')
+                return render_template('auth.register.html')
                         
     else:
-        return render_template('register.html')
+        if current_user.is_authenticated or not current_user.is_anonymous:
+            return redirect(url_for('profile'))
+        return render_template('auth.register.html')
 
 
-@app.route('/login', methods= ['GET', 'POST'])
+
+class LoginForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Length(min=4, max=80)])
+    password = PasswordField('Password', validators=[DataRequired(), Length(min=4, max=120)])
+#     remember = BooleanField('Remember Me')
+    submit = SubmitField('Login')
+    
+@app.route("/login", methods=["GET", "POST"])
 def login():
-    if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
-        validate = Validation()
-        if not validate.is_empty(email) and \
-            not validate.is_empty(password) and \
-                    validate.validate_email(email):
-            user = db_session.query(User).filter(User.email == email).first()
-            pwd = Password()
-            # print(Password().verify_password(user.password, password))
-            if user and pwd.verify_password(user.password, password):
-                User().is_authenticated = True
-                load_user(user_id=user.id)
-                login_user(user=user, remember=True)
-                return redirect(url_for('profile'))
-        else:
-            # return render_template('login.html')
-            pass
-    else:
-        # return render_template('login.html')
-        pass
+    """For GET requests, display the login form. 
+    For POSTS, login the current user by processing the form.
+    """
+#     print db
+    if current_user.is_authenticated or not current_user.is_anonymous:
+        return redirect(url_for('profile'))
+
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email= form.email.data).first()
+        if user:
+            if check_password_hash(user.password, form.password.data):
+                # user.authenticated = True
+                db.session.add(user)
+                db.session.commit()
+                login_user(user, remember=True)
+                return redirect(url_for("profile"))
+
+    return render_template("login.html", form=form)
+
 
 @app.route('/')
 def home():
