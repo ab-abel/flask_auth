@@ -1,12 +1,24 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, url_for, redirect
+
+# import for dot env load
 import os
 from dotenv import load_dotenv
-from app.database.db import create_db, session
-from app.database.user import UserApi
-from flask_restful import Api
-from app.auth.register import Registration
-from app.auth.validate import Validation
-from app.database.model import User
+
+# db annd User model import
+from app.models.users_model import User
+from app.models.users_model import db
+
+# flask login import
+from flask_login import current_user, login_user, login_required, logout_user, LoginManager
+
+# flask form import
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, SubmitField, BooleanField
+from wtforms.validators import DataRequired, Email, Length
+from flask_bootstrap import Bootstrap5
+
+# for password hash
+from werkzeug.security import generate_password_hash, check_password_hash
 
 # load evironmental files
 load_dotenv()
@@ -15,6 +27,17 @@ load_dotenv()
 app = Flask(os.getenv('APP_NAME'),
             template_folder='templates',
             static_folder='static')
+
+app.config['SECRET_KEY'] = 'super-secret'
+
+login_manager = LoginManager()
+login_manager.login_view = 'login'
+login_manager.init_app(app)
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+    # return db_session.query(User).filter(User.id == user_id).first()
 
 # load routes
 # from core.routes import bp as main_bp
@@ -30,7 +53,6 @@ api.add_resource(UserApi,
                  '/api/user/<int:id>'
                  )
 
-
 @app.route('/register', methods= ['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -42,13 +64,13 @@ def register():
             not validate.is_empty(password) and \
                 not validate.is_empty(fullname) and \
                     validate.validate_email(email):
-            user = session.query(User).filter(User.email == email).first()
+            user = db_session.query(User).filter(User.email == email).first()
             if not user: 
                 resgister_class = Registration(fullname, email, password)
                 resgister_class.register_user()
                 return render_template('home.html')
             else: 
-                return {'msg': 'User already exist'}, render_template('register.html')
+                return render_template('register.html')
                         
     else:
         return render_template('register.html')
@@ -56,23 +78,44 @@ def register():
 
 @app.route('/login', methods= ['GET', 'POST'])
 def login():
-    email = request.form['email']
-    password = request.form['password']
-    validate = Validation()
-    if not validate.is_empty(email) and \
-        not validate.is_empty(password) and \
-                validate.validate_email(email):
-        user = session.query(User).filter(User.email == email).first()
-        
-    return render_template('login.html')
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        validate = Validation()
+        if not validate.is_empty(email) and \
+            not validate.is_empty(password) and \
+                    validate.validate_email(email):
+            user = db_session.query(User).filter(User.email == email).first()
+            pwd = Password()
+            # print(Password().verify_password(user.password, password))
+            if user and pwd.verify_password(user.password, password):
+                User().is_authenticated = True
+                load_user(user_id=user.id)
+                login_user(user=user, remember=True)
+                return redirect(url_for('profile'))
+        else:
+            # return render_template('login.html')
+            pass
+    else:
+        # return render_template('login.html')
+        pass
 
 @app.route('/')
 def home():
-    return render_template('/home.html')
+    return render_template('home.html')
+
+@app.route('/profile')
+@login_required
+def profile():
+    return render_template('profile.html', username = current_user)
+
+@app.route('/logout')
+@login_required
+def logout():
+    # logout_user()
+    return redirect(url_for('home'))
 
 # run the code
 if __name__ == '__main__':
     app.run(debug=True)
     create_db()
-    
- 
