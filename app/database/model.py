@@ -7,7 +7,7 @@ db = SQLAlchemy()
 
 
 # create a table for class state
-class User(Base, UserMixin):
+class User(db.Model, UserMixin):
     '''
         class defintion for SQL table states
         pARAMETER
@@ -15,14 +15,17 @@ class User(Base, UserMixin):
         Return:
         base meta data for the creation of state tables
     '''
-    # define table name
-    __tablename__ = 'users'
-    # define column for users
-    id = Column(Integer, primary_key=True,
-                autoincrement=True, unique=True, nullable=False)
-    fullname = Column(String(256), nullable=False)
-    email = Column(String(256), nullable=False)
-    password = Column(String(256), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    fullname = db.Column(db.String(80), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(255), unique=True, nullable=False)
+    
+     
+    def __init__(self, fullname, email, password):
+       self.fullname = fullname
+       self.email = email
+       self.password = password
+   
     
     def is_active(self):
         """True, as all users are active."""
