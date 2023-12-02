@@ -65,36 +65,27 @@ class LoginForm(FlaskForm):
 
 @app.route('/register', methods= ['GET', 'POST'])
 def register():
+    form = RegisterForm()
     if request.method == 'POST':
-        fullname = request.form['firstname']
-        email = request.form['email']
-        password = request.form['password']
-        validate = Validation()
-        if not validate.is_empty(email) and \
-            not validate.is_empty(password) and \
-                not validate.is_empty(fullname) and \
-                    validate.validate_email(email):
+        if form.validate_on_submit():
+            fullname = request.form.get('fullname')
+            email = request.form.get('email')
+            password = request.form.get('password')
             user = User.query.filter_by(email= email).first()
-            if not user: 
-                user = User(fullname=fullname, email=email, password=generate_password_hash(password))
-                db.session.add(user)
-                db.session.commit()
-                flash("Users added succesfully")
-                return redirect(url_for('login'))
-            else:
-                if current_user.is_authenticated or not current_user.is_anonymous:
-                    return redirect(url_for('profile'))
+            if user:
                 flash("Email already exist")
-                return render_template('auth/register.html')
-                        
-    else:
-        if current_user.is_authenticated or not current_user.is_anonymous:
-            return redirect(url_for('profile'))
-        flash("Invalid input")
-        return render_template('auth/register.html')
-
-
-
+                return render_template('auth/register.html', form=form)
+            user = User(fullname=fullname, email=email, password=generate_password_hash(password))
+            db.session.add(user)
+            db.session.commit()
+            flash("Users added succesfully")
+            return redirect(url_for('login'))
+        if form.errors:
+            flash(form.errors, 'danger')
+    
+    if current_user.is_authenticated or not current_user.is_anonymous:
+        return redirect(url_for('profile'))
+    else: return render_template('auth/register.html', form=form)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
