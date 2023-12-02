@@ -16,9 +16,9 @@ class User(db.Model, UserMixin):
         base meta data for the creation of state tables
     '''
     id = db.Column(db.Integer, primary_key=True)
-    fullname = db.Column(db.String(80), unique=True, nullable=False)
+    fullname = db.Column(db.String(80), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(255), unique=True, nullable=False)
+    password = db.Column(db.String(255), nullable=False)
     
      
     def __init__(self, fullname, email, password):
