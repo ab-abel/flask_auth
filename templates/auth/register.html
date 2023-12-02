@@ -2,27 +2,46 @@
 
 {% block title %}Home{% endblock %}
 {% block main %}
-
+{% from 'bootstrap5/form.html' import render_form %}
     <div class="container container-body mb-3">
         <h1>Register</h1>
-        <form  class="row" method="post" >
+       
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    
+                        {% for category, message in messages %}
+                            <div class="alert alert-success">
+                                <p class="{{ category }}">{{ message }}</p>
+                            </div>
+                        {% endfor %}
+                    
+                {% endif %}
+        
+            {% endwith %}
+        
+        <form  class="row" method="POST">
+            {{ form.csrf_token }}
             <div class="col-md-7 form-group"> 
-                <label for="firstname" class="form-label">Name:</label>
-                <input type="text" class="form-control" id="firstname" name="firstname" required>
+                <label for="firstname" class="form-label">{{ form.fullname.label }}</label>
+                {{form.fullname(class_="form-control")}}
             </div>
 
             <div class="col-md-7 form-group">
-                <label for="email" class="form-label">Email:</label>
-                <input type="text" class="form-control" id="email" name="email" required>
+                <label for="email" class="form-label">{{form.email.label}}</label>
+                {{form.email(class_="form-control")}}
             </div>
 
             <div class="col-md-7 form-group">
-                <label for="password" class="form-label">Password:</label>
-                <input type="password" class="form-control" id="password" name="password" required>
+                <label for="password" class="form-label">{{form.password.label}}</label>
+                {{form.password(class_="form-control")}}
+            </div>
+            <div class="col-md-7 form-group">
+                <label for="password" class="form-label">{{form.confirm.label}}</label>
+                {{form.confirm(class_="form-control")}}
             </div>
 
             <div class="col-md-7 form-group">
-                <button type="submit" class="btn btn-primary">Login</button>
+                <button type="submit" class="btn btn-primary">Register</button>
             </div>
         </form>
     </div>
