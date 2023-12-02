@@ -14,8 +14,8 @@ from flask_login import current_user, login_user, login_required, logout_user, L
 
 # flask form import
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
-from wtforms.validators import DataRequired, Length
+from wtforms import StringField, PasswordField, SubmitField, EmailField
+from wtforms.validators import DataRequired, Length, InputRequired, EqualTo
 from flask_bootstrap import Bootstrap5
 
 # for password hash
@@ -49,6 +49,19 @@ def user_loader(user_id):
 def home():
     return render_template('home.html')
 
+class RegisterForm(FlaskForm):
+    fullname = StringField('Fullname', [InputRequired()])
+    email = EmailField('Email', [InputRequired()])
+    password  = PasswordField('Password', [
+        InputRequired(), EqualTo('confirm', message='Passwords must match')
+    ])
+    confirm = PasswordField('Confirm Password', [InputRequired()])
+
+class LoginForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Length(min=4, max=80)])
+    password = PasswordField('Password', validators=[DataRequired(), Length(min=4, max=120)])
+#     remember = BooleanField('Remember Me')
+    submit = SubmitField('Login')
 
 @app.route('/register', methods= ['GET', 'POST'])
 def register():
@@ -82,12 +95,7 @@ def register():
 
 
 
-class LoginForm(FlaskForm):
-    email = StringField('Email', validators=[DataRequired(), Length(min=4, max=80)])
-    password = PasswordField('Password', validators=[DataRequired(), Length(min=4, max=120)])
-#     remember = BooleanField('Remember Me')
-    submit = SubmitField('Login')
-    
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     """For GET requests, display the login form. 
