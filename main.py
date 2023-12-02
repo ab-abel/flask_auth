@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, url_for, redirect
+from flask import Flask, render_template, request, url_for, redirect, flash
 from app.auth.validate import Validation
 
 # import for dot env load
@@ -14,8 +14,8 @@ from flask_login import current_user, login_user, login_required, logout_user, L
 
 # flask form import
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField
-from wtforms.validators import DataRequired, Email, Length
+from wtforms import StringField, PasswordField, SubmitField
+from wtforms.validators import DataRequired, Length
 from flask_bootstrap import Bootstrap5
 
 # for password hash
@@ -63,7 +63,7 @@ def register():
                     validate.validate_email(email):
             user = User.query.filter_by(email= email).first()
             if not user: 
-                user = User(fullname=fullname, email=email, password=password)
+                user = User(fullname=fullname, email=email, password=generate_password_hash(password))
                 db.session.add(user)
                 db.session.commit()
                 flash("Users added succesfully")
@@ -71,11 +71,13 @@ def register():
             else:
                 if current_user.is_authenticated or not current_user.is_anonymous:
                     return redirect(url_for('profile'))
+                flash("Email already exist")
                 return render_template('auth/register.html')
                         
     else:
         if current_user.is_authenticated or not current_user.is_anonymous:
             return redirect(url_for('profile'))
+        flash("Invalid input")
         return render_template('auth/register.html')
 
 
@@ -104,8 +106,12 @@ def login():
                 db.session.add(user)
                 db.session.commit()
                 login_user(user, remember=True)
+                flash('login successful')
                 return redirect(url_for("profile"))
-
+            else:
+                flash('Invalid Password')
+        else:
+            flash('User does not exist')
     return render_template("auth/login.html", form=form)
 
 @app.route('/profile')
